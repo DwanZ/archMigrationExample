@@ -20,7 +20,7 @@ data class PokemonEntity(
     val stats: List<Stat>,
     val types: List<Type>,
     val weight: Int
-) {
+) : Entity() {
     data class Ability(
         val ability: Ability,
         @SerializedName("is_hidden") val isHidden: Boolean,

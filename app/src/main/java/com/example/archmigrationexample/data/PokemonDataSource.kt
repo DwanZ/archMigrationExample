@@ -8,6 +8,6 @@ interface PokemonDataSource {
 
     suspend fun getPokemonByName(name: String): Result<PokemonEntity>
 
-    suspend fun getPokemonsByPagination(offset: String): Result<List<PokemonListEntity>>
+    suspend fun getPokemonsByPagination(offset: String): Result<PokemonListEntity>
 
 }

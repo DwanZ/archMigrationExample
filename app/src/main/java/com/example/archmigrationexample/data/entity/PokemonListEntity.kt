@@ -1,6 +1,7 @@
 package com.example.archmigrationexample.data.entity
 
 data class PokemonListEntity(
-    val previous: Int?,
-    val next: Int?,
-    val results: List<PokemonItemListEntity>)
+    val count: Int,
+    val previous: String?,
+    val next: String?,
+    val results: List<PokemonItemListEntity>) : Entity()

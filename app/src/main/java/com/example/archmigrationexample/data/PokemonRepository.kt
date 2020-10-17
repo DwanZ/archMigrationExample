@@ -13,7 +13,7 @@ class PokemonRepository(
         return pokemonRemoteDataSource.getPokemonByName(name)
     }
 
-    override suspend fun getPokemonsByPagination(offset: String): Result<List<PokemonListEntity>> {
+    override suspend fun getPokemonsByPagination(offset: String): Result<PokemonListEntity> {
         return pokemonRemoteDataSource.getPokemonsByPagination(offset)
     }
 

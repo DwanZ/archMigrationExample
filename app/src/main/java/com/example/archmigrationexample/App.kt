@@ -1,7 +1,9 @@
-package com.example.archmigrationexample.view
+package com.example.archmigrationexample
 
 import android.app.Application
 import com.example.archmigrationexample.data.dataModule
+import com.example.archmigrationexample.usecase.useCaseModule
+import com.example.archmigrationexample.view.home.di.homeModule
 import org.koin.core.context.startKoin
 
 class App: Application() {
@@ -9,7 +11,7 @@ class App: Application() {
     override fun onCreate() {
         super.onCreate()
         startKoin {
-            modules(dataModule)
+            modules(dataModule, useCaseModule, homeModule)
         }
     }
 }
