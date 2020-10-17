@@ -1,4 +1,4 @@
-package com.example.archmigrationexample.util
+package com.example.archmigrationexample.view
 
 
 interface BaseContract {

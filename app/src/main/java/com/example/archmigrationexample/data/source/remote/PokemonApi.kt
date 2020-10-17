@@ -13,6 +13,6 @@ interface PokemonApi {
     @GET("pokemon/{name}")
     fun getPokemonByName(@Path("name") name: String): Call<PokemonEntity>
 
-    @GET("pokemon/?limit=20")
+    @GET("pokemon/?limit=30")
     fun getPokemonsByPagination(@Query("offset") offset: String): Call<PokemonListEntity>
 }

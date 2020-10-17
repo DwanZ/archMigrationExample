@@ -13,11 +13,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
+import java.util.concurrent.TimeoutException
 
 class PokemonRemoteDataSource(private val api: PokemonApi) : PokemonDataSource {
 
     override suspend fun getPokemonByName(name: String): Result<PokemonEntity> {
-        lateinit var result: Result<PokemonEntity>
+        var result: Result<PokemonEntity> = Result.Error(TimeoutException())
         api.getPokemonByName(name).enqueue(object : Callback<PokemonEntity> {
             override fun onResponse(
                 call: Call<PokemonEntity>,
@@ -39,11 +40,12 @@ class PokemonRemoteDataSource(private val api: PokemonApi) : PokemonDataSource {
                 result = Result.Error(t)
             }
         })
+        delay(3000)
         return result
     }
 
     override suspend fun getPokemonsByPagination(offset: String): Result<PokemonListEntity> {
-        lateinit var result: Result<PokemonListEntity>
+        var result: Result<PokemonListEntity> = Result.Error(TimeoutException())
         GlobalScope.launch {
             api.getPokemonsByPagination(offset).enqueue(object : Callback<PokemonListEntity> {
                 override fun onResponse(
@@ -67,7 +69,7 @@ class PokemonRemoteDataSource(private val api: PokemonApi) : PokemonDataSource {
                 }
             })
         }
-        delay(2000)
+        delay(3000)
         return result
     }
 

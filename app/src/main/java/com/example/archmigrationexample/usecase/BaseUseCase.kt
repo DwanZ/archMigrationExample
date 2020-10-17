@@ -1,6 +1,7 @@
-package com.example.archmigrationexample.util
+package com.example.archmigrationexample.usecase
 
 import com.example.archmigrationexample.data.entity.Entity
+import com.example.archmigrationexample.util.Result
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel

@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity() {
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -35,8 +35,9 @@ class SplashActivity : AppCompatActivity() {
                 Intent(
                     this@SplashActivity,
                     HomeActivity::class.java
-                ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                )
             startActivity(intent)
+            finish()
         }
     }
 }
