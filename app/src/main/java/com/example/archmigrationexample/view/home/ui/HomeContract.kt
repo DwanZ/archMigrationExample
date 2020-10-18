@@ -14,8 +14,6 @@ class HomeContract {
         fun hideLoading()
         fun showPokemonList(list: PokemonListEntity)
         fun showEmptyView(error: Throwable)
-        fun moveLeft()
-        fun moveRight()
     }
 
     interface Presenter: BaseContract.Presenter, CoroutineScope {

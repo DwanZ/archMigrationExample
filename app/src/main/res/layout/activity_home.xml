@@ -9,14 +9,15 @@
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:swipeRefreshLayoutProgressSpinnerBackgroundColor="@color/colorAccent">
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/recyclerContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingStart="15dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="30dp"
             android:paddingEnd="15dp"
             android:visibility="gone">
 
@@ -31,9 +32,24 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.5" />
 
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:id="@+id/pagCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1"/>
 
     <TextView
         android:id="@+id/errorText"
@@ -48,5 +64,31 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5" />
 
+    <ImageView
+        android:id="@+id/arrowLeft"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_arrow_left"
+        android:paddingStart="25dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"/>
+
+    <ImageView
+        android:id="@+id/arrowRight"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_arrow_right"
+        android:paddingEnd="25dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

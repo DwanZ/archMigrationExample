@@ -1,5 +1,6 @@
-package com.example.archmigrationexample.data
+package com.example.archmigrationexample.data.di
 
+import com.example.archmigrationexample.data.PokemonRepository
 import com.example.archmigrationexample.data.source.remote.PokemonApi
 import com.example.archmigrationexample.data.source.remote.PokemonRemoteDataSource
 import com.example.archmigrationexample.util.Constants.Companion.BASE_URL
