@@ -25,10 +25,6 @@ class DetailActivity : AppCompatActivity(), DetailContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
         setContentView(R.layout.activity_detail)
         presenter.view = this
         intent?.extras?.getString(NAME)?.let {
@@ -41,6 +37,7 @@ class DetailActivity : AppCompatActivity(), DetailContract.View {
     override fun showLoading() {
         pokemonProgress.visibility = View.VISIBLE
         pokemonDetailIContainer.visibility = View.GONE
+        errorDetailText.visibility = View.GONE
     }
 
     override fun hideLoading() {
@@ -67,6 +64,10 @@ class DetailActivity : AppCompatActivity(), DetailContract.View {
     }
 
     override fun showEmptyView(error: Throwable) {
-
+        pokemonDetailIContainer.visibility = View.GONE
+        errorDetailText.apply {
+            text = "Error al recuperar los datos causado por ${error.javaClass.canonicalName}"
+            visibility = View.VISIBLE
+        }
     }
 }
