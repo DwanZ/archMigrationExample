@@ -1,11 +1,13 @@
 package com.example.archmigrationexample.view.home.di
 
-import com.example.archmigrationexample.view.home.ui.HomePresenter
+import com.example.archmigrationexample.view.home.ui.HomeViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.dsl.module
-import kotlin.coroutines.CoroutineContext
 
+@ExperimentalCoroutinesApi
 val homeModule = module {
-    factory  {
-        HomePresenter(get(), get())
+
+    factory {
+        HomeViewModel(get(), get())
     }
 }

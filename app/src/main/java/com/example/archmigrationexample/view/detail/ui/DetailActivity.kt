@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.Window
-import android.view.WindowManager
+import androidx.lifecycle.Observer
 import com.example.archmigrationexample.R
 import com.example.archmigrationexample.data.entity.PokemonEntity
 import com.example.archmigrationexample.util.Constants.Companion.NAME
@@ -15,40 +15,45 @@ import com.example.archmigrationexample.util.exceptions.EmptyResponseException
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_detail.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.koin.java.KoinJavaComponent
+import org.koin.java.KoinJavaComponent.inject
 
 @ExperimentalCoroutinesApi
-class DetailActivity : AppCompatActivity(), DetailContract.View {
+class DetailActivity : AppCompatActivity() {
 
-    private val presenter by KoinJavaComponent.inject(DetailPresenter::class.java)
+    private val viewModel by inject(DetailViewModel::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
         setContentView(R.layout.activity_detail)
-        presenter.view = this
         intent?.extras?.getString(NAME)?.let {
-            presenter.getPokemonByName(it)
+            showLoading()
+            viewModel.getPokemonByName(it)
         } ?: run {
             showEmptyView(EmptyResponseException())
         }
+        viewModel.pokemon.observe(this, Observer {
+            hideLoading()
+            showPokemonList(it)
+        })
+        viewModel.errorP.observe(this, Observer {
+            hideLoading()
+            showEmptyView(it)
+        })
     }
 
-    override fun showLoading() {
+    fun showLoading() {
         pokemonProgress.visibility = View.VISIBLE
         pokemonDetailIContainer.visibility = View.GONE
+        errorDetailText.visibility = View.GONE
     }
 
-    override fun hideLoading() {
+    fun hideLoading() {
         pokemonProgress.visibility = View.GONE
     }
 
     @SuppressLint("SetTextI18n")
-    override fun showPokemonList(pokemon: PokemonEntity) {
+    fun showPokemonList(pokemon: PokemonEntity) {
         var ability = ""
         pokemon.abilities.forEach { power -> ability += power.ability.name.plus(" // ") }
         var moves = ""
@@ -66,7 +71,11 @@ class DetailActivity : AppCompatActivity(), DetailContract.View {
         pokemonDetailIContainer.visibility = View.VISIBLE
     }
 
-    override fun showEmptyView(error: Throwable) {
-
+    fun showEmptyView(error: Throwable) {
+        pokemonDetailIContainer.visibility = View.GONE
+        errorDetailText.apply {
+            text = "Error al recuperar los datos causado por ${error.javaClass.canonicalName}"
+            visibility = View.VISIBLE
+        }
     }
 }
