@@ -8,11 +8,13 @@ You'll find 2 usecases, find pokemon list by pagination and find single pokemon 
 
 ## MVP
 
-MVP with clea architecture is an implementation of 
+MVP with clean architecture is an implementation of 
 
 ![mvp](https://user-images.githubusercontent.com/13360891/110216537-a6d63500-7e7d-11eb-9b65-297c5acf27e5.PNG)
 
 
 ## MVVM
 
-MVVM with clea architecture is an implementation of 
+MVVM with clean architecture is an implementation of 
+
+![mvvm](https://user-images.githubusercontent.com/13360891/111811562-2a901880-88a5-11eb-9566-4e2092f77008.png)
