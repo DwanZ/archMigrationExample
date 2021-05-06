@@ -3,7 +3,7 @@ package com.example.archmigrationexample.data.source.remote
 import com.example.archmigrationexample.data.PokemonDataSource
 import com.example.archmigrationexample.data.entity.PokemonEntity
 import com.example.archmigrationexample.data.entity.PokemonListEntity
-import com.example.archmigrationexample.util.Result
+import com.example.archmigrationexample.util.ApiResponse
 import com.example.archmigrationexample.util.exceptions.ConectionException
 import com.example.archmigrationexample.util.exceptions.EmptyResponseException
 import kotlinx.coroutines.GlobalScope
@@ -12,13 +12,12 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 import java.util.concurrent.TimeoutException
 
 class PokemonRemoteDataSource(private val api: PokemonApi) : PokemonDataSource {
 
-    override suspend fun getPokemonByName(name: String): Result<PokemonEntity> {
-        var result: Result<PokemonEntity> = Result.Error(TimeoutException())
+    override suspend fun getPokemonByName(name: String): ApiResponse<PokemonEntity> {
+        var apiResponse: ApiResponse<PokemonEntity> = ApiResponse.Error(TimeoutException())
         api.getPokemonByName(name).enqueue(object : Callback<PokemonEntity> {
             override fun onResponse(
                 call: Call<PokemonEntity>,
@@ -27,25 +26,25 @@ class PokemonRemoteDataSource(private val api: PokemonApi) : PokemonDataSource {
                 if (response.isSuccessful) {
                     response.body().let {
                         it?.let {
-                            result = Result.Success<PokemonEntity>(it)
+                            apiResponse = ApiResponse.Success<PokemonEntity>(it)
                         } ?: run {
-                            result = Result.Error(EmptyResponseException())
+                            apiResponse = ApiResponse.Error(EmptyResponseException())
                         }
                     }
                 } else {
-                    result = Result.Error(ConectionException())
+                    apiResponse = ApiResponse.Error(ConectionException())
                 }
             }
             override fun onFailure(call: Call<PokemonEntity>, t: Throwable) {
-                result = Result.Error(t)
+                apiResponse = ApiResponse.Error(t)
             }
         })
         delay(3000)
-        return result
+        return apiResponse
     }
 
-    override suspend fun getPokemonsByPagination(offset: String): Result<PokemonListEntity> {
-        var result: Result<PokemonListEntity> = Result.Error(TimeoutException())
+    override suspend fun getPokemonsByPagination(offset: String): ApiResponse<PokemonListEntity> {
+        var apiResponse: ApiResponse<PokemonListEntity> = ApiResponse.Error(TimeoutException())
         GlobalScope.launch {
             api.getPokemonsByPagination(offset).enqueue(object : Callback<PokemonListEntity> {
                 override fun onResponse(
@@ -55,22 +54,22 @@ class PokemonRemoteDataSource(private val api: PokemonApi) : PokemonDataSource {
                     if (response.isSuccessful) {
                         response.body().let {
                             it?.let {
-                                result = Result.Success<PokemonListEntity>(it)
+                                apiResponse = ApiResponse.Success<PokemonListEntity>(it)
                             } ?: run {
-                                result = Result.Error(EmptyResponseException())
+                                apiResponse = ApiResponse.Error(EmptyResponseException())
                             }
                         }
                     } else {
-                        result = Result.Error(ConectionException())
+                        apiResponse = ApiResponse.Error(ConectionException())
                     }
                 }
                 override fun onFailure(call: Call<PokemonListEntity>, t: Throwable) {
-                    result = Result.Error(t)
+                    apiResponse = ApiResponse.Error(t)
                 }
             })
         }
         delay(3000)
-        return result
+        return apiResponse
     }
 
 }

@@ -17,7 +17,6 @@ import kotlinx.android.synthetic.main.activity_detail.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.java.KoinJavaComponent.inject
 
-@ExperimentalCoroutinesApi
 class DetailActivity : AppCompatActivity() {
 
     private val viewModel by inject(DetailViewModel::class.java)
@@ -32,11 +31,11 @@ class DetailActivity : AppCompatActivity() {
         } ?: run {
             showEmptyView(EmptyResponseException())
         }
-        viewModel.pokemon.observe(this, Observer {
+        viewModel.pokemon.observe(this, {
             hideLoading()
             showPokemonList(it)
         })
-        viewModel.errorP.observe(this, Observer {
+        viewModel.errorP.observe(this, {
             hideLoading()
             showEmptyView(it)
         })

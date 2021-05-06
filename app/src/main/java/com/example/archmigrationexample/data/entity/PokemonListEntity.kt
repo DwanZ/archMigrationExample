@@ -4,4 +4,4 @@ data class PokemonListEntity(
     val count: Int,
     val previous: String?,
     val next: String?,
-    val results: List<PokemonItemListEntity>) : Entity()
+    val results: List<PokemonItemListEntity>)

@@ -1,20 +1,17 @@
 package com.example.archmigrationexample.view
 
 import androidx.lifecycle.ViewModel
-import com.example.archmigrationexample.data.entity.Entity
-import com.example.archmigrationexample.util.Result
+import com.example.archmigrationexample.util.ApiResponse
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlin.coroutines.CoroutineContext
 
-@ExperimentalCoroutinesApi
-abstract class BaseViewModel: ViewModel(), CoroutineScope {
+abstract class BaseViewModel<T : Any> : ViewModel(), CoroutineScope {
 
     private val parentJob = SupervisorJob()
     private val mainDispatcher = Dispatchers.Main
-    protected abstract val receiveChannel: ReceiveChannel<Result<Entity>>
+    protected abstract val receiveChannel: ReceiveChannel<ApiResponse<T>>
 
     init {
         launch {
@@ -24,7 +21,7 @@ abstract class BaseViewModel: ViewModel(), CoroutineScope {
         }
     }
 
-    abstract fun resolve(result: Result<Entity>)
+    abstract fun resolve(apiResponse: ApiResponse<T>)
 
     override val coroutineContext: CoroutineContext
         get() = parentJob + mainDispatcher

@@ -13,11 +13,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.detail.ui.DetailActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".view.detail.ui.DetailActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".view.home.ui.HomeActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".view.splash.SplashActivity"
             android:screenOrientation="portrait"

@@ -3,7 +3,6 @@ package com.example.archmigrationexample.data.source.remote
 import com.example.archmigrationexample.data.entity.PokemonEntity
 import com.example.archmigrationexample.data.entity.PokemonListEntity
 import retrofit2.http.GET
-import com.example.archmigrationexample.util.Result
 import retrofit2.Call
 import retrofit2.http.Path
 import retrofit2.http.Query
