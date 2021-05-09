@@ -59,13 +59,16 @@ class DetailActivity : AppCompatActivity() {
         pokemon.moves.forEach { move -> moves += move.move.name.plus(" // ") }
         var types = ""
         pokemon.types.forEach { type -> types += type.type.name.plus(" // ") }
+        var stats = ""
+        pokemon.stats.forEach { stat -> stats += stat.stat.name.plus(": ${stat.base_stat} \r\n") }
         pokemonName.text = pokemon.name.capitalize()
         pokemonHeight.text = "${pokemon.height}"
         pokemonWeight.text = "${pokemon.weight}"
-        pokemonPower.text = "[ ${ability.dropLast(3)} ]"
-        pokemonMove.text = "[ ${moves.dropLast(3)} ]"
+        pokemonPower.text = "[ ${ability.dropLast(3)}]"
+        pokemonMove.text = "[ ${moves.dropLast(3)}]"
         pokemonExp.text = "${pokemon.baseExperience}"
-        pokemonType.text = "[ ${types.dropLast(3)} ]"
+        pokemonType.text = "[ ${types.dropLast(3)}]"
+        pokemonItems.text = "${stats.dropLast(3)}"
         Picasso.get().load("$POKEMON_IMG_DETAIL_URL${pokemon.id}$PNG").into(pokemonDetailImg)
         pokemonDetailIContainer.visibility = View.VISIBLE
     }

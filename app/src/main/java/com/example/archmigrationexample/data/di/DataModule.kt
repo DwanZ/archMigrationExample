@@ -14,7 +14,6 @@ val dataModule = module {
 
     single {
         Retrofit.Builder()
-            //.addCallAdapterFactory(CoroutineCallAdapterFactory)
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl(BASE_URL).client(
             OkHttpClient.Builder()
