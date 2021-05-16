@@ -2,20 +2,23 @@ package com.example.archmigrationexample.view
 
 import androidx.lifecycle.ViewModel
 import com.example.archmigrationexample.util.ApiResponse
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseViewModel<T : Any> : ViewModel(), CoroutineScope {
 
     private val parentJob = SupervisorJob()
     private val mainDispatcher = Dispatchers.Main
-    protected abstract val receiveChannel: ReceiveChannel<ApiResponse<T>>
+    protected abstract val receiveChannel: Flow<ApiResponse<T>>
 
     init {
         launch {
-            receiveChannel.consumeEach {
+            receiveChannel.collect {
                 resolve(it)
             }
         }

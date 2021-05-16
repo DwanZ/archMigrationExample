@@ -1,24 +1,34 @@
 package com.example.archmigrationexample.view.home.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.Window
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.addRepeatingJob
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.archmigrationexample.R
+import com.example.archmigrationexample.data.entity.PokemonItemListEntity
 import com.example.archmigrationexample.data.entity.PokemonListEntity
+import com.example.archmigrationexample.util.Constants
 import com.example.archmigrationexample.util.Constants.Companion.limit
+import com.example.archmigrationexample.view.detail.ui.DetailActivity
+import com.example.archmigrationexample.view.home.HomeEvent
+import com.example.archmigrationexample.view.home.HomeState
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import org.koin.java.KoinJavaComponent.inject
 
 @ExperimentalCoroutinesApi
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), PokemonAdapter.Interaction {
 
     private val viewModel by inject(HomeViewModel::class.java)
-    private val pAdapter = PokemonAdapter(emptyList())
+    private val pAdapter = PokemonAdapter(emptyList(), this)
 
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,32 +42,57 @@ class HomeActivity : AppCompatActivity() {
         swipeRefresh.apply {
             setColorSchemeColors(resources.getColor(R.color.colorAccent))
             setOnRefreshListener {
-                showLoading()
-                viewModel.getPokemonList(0)
+                viewModel.processUIEvent(HomeEvent.RefreshPage)
             }
         }
         arrowRight.apply {
             setOnClickListener {
-                showLoading()
-                viewModel.getPokemonList(limit)
+                viewModel.processUIEvent(HomeEvent.NextPage(limit))
+            }
+        }
+        arrowLeft.apply {
+            setOnClickListener {
+                viewModel.processUIEvent(HomeEvent.PreviousPage(-limit))
             }
         }
 
-        arrowLeft.apply {
-            setOnClickListener {
+        addRepeatingJob(Lifecycle.State.STARTED) {
+            viewModel.viewState.collect(::processState)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.processUIEvent(HomeEvent.OnViewHidden)
+    }
+
+    private fun processState(state: HomeState) {
+        when(state) {
+            is HomeState.Success -> {
+                showPokemonList(state.value)
+            }
+            is HomeState.OpenDetail -> {
+                val intent =
+                    Intent(
+                        this,
+                        DetailActivity::class.java
+                    )
+                intent.putExtra(Constants.NAME, state.name)
+                startActivity(intent)
+            }
+            is HomeState.Error -> {
+                showErrorView(state.error)
+            }
+            is HomeState.EmptyList -> {
+                showEmptyView()
+            }
+            is HomeState.Loading -> {
                 showLoading()
-                viewModel.getPokemonList(-limit)
+            }
+            is HomeState.OnViewHidden -> {
+                //nothing
             }
         }
-        showLoading()
-        viewModel.pokemonList.observe(this, Observer {
-            hideLoading()
-            showPokemonList(it)
-        })
-        viewModel.errorList.observe(this, Observer {
-            hideLoading()
-            showEmptyView(it)
-        })
     }
 
     private fun showLoading() {
@@ -87,13 +122,24 @@ class HomeActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    fun showEmptyView(error: Throwable) {
+    fun showErrorView(error: Throwable) {
         pAdapter.pokemonList = emptyList()
         pAdapter.notifyDataSetChanged()
         swipeRefresh.isRefreshing = false
         recyclerContainer.visibility = View.GONE
         errorText.apply {
             text = "Error al recuperar los datos causado por ${error.javaClass.canonicalName}"
+            visibility = View.VISIBLE
+        }
+    }
+
+    fun showEmptyView() {
+        pAdapter.pokemonList = emptyList()
+        pAdapter.notifyDataSetChanged()
+        swipeRefresh.isRefreshing = false
+        recyclerContainer.visibility = View.GONE
+        errorText.apply {
+            text = "No hay más pokemon"
             visibility = View.VISIBLE
         }
     }
@@ -109,5 +155,9 @@ class HomeActivity : AppCompatActivity() {
         } else {
             arrowRight.visibility = View.GONE
         }
+    }
+
+    override fun onItemSelected(pokemon: PokemonItemListEntity) {
+        viewModel.processUIEvent(HomeEvent.OpenDetail(pokemon.name))
     }
 }

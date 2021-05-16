@@ -22,13 +22,13 @@ import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_URL
 import com.example.archmigrationexample.view.detail.ui.DetailActivity
 import com.squareup.picasso.Picasso
 
-class PokemonAdapter(var pokemonList: List<PokemonItemListEntity>) :
+class PokemonAdapter(var pokemonList: List<PokemonItemListEntity>, val interaction: Interaction? = null) :
     Adapter<PokemonViewHolder>() {
     var offset: Int = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PokemonViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return PokemonViewHolder(inflater, parent)
+        return PokemonViewHolder(inflater, parent, interaction)
     }
 
     override fun getItemCount(): Int = pokemonList.size
@@ -36,9 +36,13 @@ class PokemonAdapter(var pokemonList: List<PokemonItemListEntity>) :
     override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
         holder.bind(pokemonList[position], position, offset)
     }
+
+    interface Interaction {
+        fun onItemSelected(pokemon: PokemonItemListEntity)
+    }
 }
 
-class PokemonViewHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerView.ViewHolder(
+class PokemonViewHolder(inflater: LayoutInflater, parent: ViewGroup, val interaction: PokemonAdapter.Interaction?) : RecyclerView.ViewHolder(
     inflater.inflate(
         R.layout.pokemon_item, parent, false
     )
@@ -67,13 +71,7 @@ class PokemonViewHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerV
             Picasso.get().load(url).into(pImg)
         }
         card.setOnClickListener {
-            val intent =
-                Intent(
-                    it.context,
-                    DetailActivity::class.java
-                )
-            intent.putExtra(NAME, pokemon.name)
-            it.context.startActivity(intent)
+            interaction?.onItemSelected(pokemon)
         }
     }
 

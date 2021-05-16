@@ -1,11 +1,12 @@
 package com.example.archmigrationexample.view.detail.ui
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.Window
-import androidx.lifecycle.Observer
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.addRepeatingJob
 import com.example.archmigrationexample.R
 import com.example.archmigrationexample.data.entity.PokemonEntity
 import com.example.archmigrationexample.util.Constants.Companion.NAME
@@ -14,7 +15,7 @@ import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_DET
 import com.example.archmigrationexample.util.exceptions.EmptyResponseException
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_detail.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import org.koin.java.KoinJavaComponent.inject
 
 class DetailActivity : AppCompatActivity() {
@@ -25,20 +26,26 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_detail)
+        addRepeatingJob(Lifecycle.State.STARTED) {
+            viewModel.viewState.collect {
+                render(it)
+            }
+        }
         intent?.extras?.getString(NAME)?.let {
-            showLoading()
             viewModel.getPokemonByName(it)
         } ?: run {
             showEmptyView(EmptyResponseException())
         }
-        viewModel.pokemon.observe(this, {
-            hideLoading()
-            showPokemonList(it)
-        })
-        viewModel.errorP.observe(this, {
-            hideLoading()
+    }
+
+    private fun render(state: DetailViewState) {
+       if (state.loading) showLoading() else hideLoading()
+        state.error?.let {
             showEmptyView(it)
-        })
+        }
+        state.value?.let {
+            showPokemon(it)
+        }
     }
 
     private fun showLoading() {
@@ -52,7 +59,7 @@ class DetailActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    fun showPokemonList(pokemon: PokemonEntity) {
+    private fun showPokemon(pokemon: PokemonEntity) {
         var ability = ""
         pokemon.abilities.forEach { power -> ability += power.ability.name.plus(" // ") }
         var moves = ""
