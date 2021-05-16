@@ -4,6 +4,7 @@ import com.example.archmigrationexample.data.PokemonRepository
 import com.example.archmigrationexample.data.source.remote.PokemonApi
 import com.example.archmigrationexample.data.source.remote.PokemonRemoteDataSource
 import com.example.archmigrationexample.util.Constants.Companion.BASE_URL
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -14,22 +15,22 @@ val dataModule = module {
 
     single {
         Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
             .baseUrl(BASE_URL).client(
-            OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .build()
-        ).build()
+                OkHttpClient.Builder()
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(10, TimeUnit.SECONDS)
+                    .build()
+            ).build()
             .create(PokemonApi::class.java)
     }
 
-    factory  {
+    factory {
         PokemonRemoteDataSource(get())
     }
 
-    factory  {
+    factory {
         PokemonRepository(get())
     }
 

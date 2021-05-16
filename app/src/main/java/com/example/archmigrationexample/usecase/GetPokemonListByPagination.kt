@@ -7,7 +7,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitAll
 
 @ExperimentalCoroutinesApi
-class GetPokemonListByPagination(private val repository: PokemonRepository): BaseUseCase<Params, PokemonListEntity>() {
+class GetPokemonListByPagination(private val repository: PokemonRepository) :
+    BaseUseCase<Params, PokemonListEntity>() {
 
     override suspend fun run(params: Params) {
         val task = startAsync {

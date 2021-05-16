@@ -41,13 +41,13 @@ class DetailActivity : AppCompatActivity() {
         })
     }
 
-    fun showLoading() {
+    private fun showLoading() {
         pokemonProgress.visibility = View.VISIBLE
         pokemonDetailIContainer.visibility = View.GONE
         errorDetailText.visibility = View.GONE
     }
 
-    fun hideLoading() {
+    private fun hideLoading() {
         pokemonProgress.visibility = View.GONE
     }
 
@@ -56,9 +56,12 @@ class DetailActivity : AppCompatActivity() {
         var ability = ""
         pokemon.abilities.forEach { power -> ability += power.ability.name.plus(" // ") }
         var moves = ""
-        pokemon.moves.forEach { move -> moves += move.move.name.plus(" // ") }
+        pokemon.moves.take(12).forEach { move -> moves += move.move.name.plus(" // ") }
         var types = ""
-        pokemon.types.forEach { type -> types += type.type.name.plus(" // ") }
+        pokemon.types.forEach { type ->
+            types += type.type.name.plus(" // ")
+            setHeaderColor(type.type.name)
+        }
         var stats = ""
         pokemon.stats.forEach { stat -> stats += stat.stat.name.plus(": ${stat.base_stat} \r\n") }
         pokemonName.text = pokemon.name.capitalize()
@@ -71,13 +74,35 @@ class DetailActivity : AppCompatActivity() {
         pokemonItems.text = "${stats.dropLast(3)}"
         Picasso.get().load("$POKEMON_IMG_DETAIL_URL${pokemon.id}$PNG").into(pokemonDetailImg)
         pokemonDetailIContainer.visibility = View.VISIBLE
+        scrollContainer.visibility = View.VISIBLE
+        errorDetailText.visibility = View.GONE
     }
 
-    fun showEmptyView(error: Throwable) {
-        pokemonDetailIContainer.visibility = View.GONE
+    private fun showEmptyView(error: Throwable) {
+        scrollContainer.visibility = View.GONE
         errorDetailText.apply {
             text = "Error al recuperar los datos causado por ${error.javaClass.canonicalName}"
             visibility = View.VISIBLE
+        }
+    }
+
+    private fun setHeaderColor(type: String) {
+        when {
+            type.contains("normal") -> {
+                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorNormalHeader))
+            }
+            type.contains("water") -> {
+                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorWaterHeader))
+            }
+            type.contains("grass") || type.contains("bug") -> {
+                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorGrassHeader))
+            }
+            type.contains("poison") -> {
+                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorPoisonHeader))
+            }
+            type.contains("fire") -> {
+                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorFireHeader))
+            }
         }
     }
 }

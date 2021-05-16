@@ -7,7 +7,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitAll
 
 @ExperimentalCoroutinesApi
-class GetPokemonByNameUseCase(private val repository: PokemonRepository): BaseUseCase<Params, PokemonEntity>() {
+class GetPokemonByNameUseCase(private val repository: PokemonRepository) :
+    BaseUseCase<Params, PokemonEntity>() {
 
     override suspend fun run(params: Params) {
         val task = startAsync {

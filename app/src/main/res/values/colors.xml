@@ -2,6 +2,11 @@
 <resources>
     <color name="colorPrimary">#FF4400</color>
     <color name="colorPrimaryDark">#FF0000</color>
+    <color name="colorFireHeader">#FF5C35</color>
+    <color name="colorWaterHeader">#AEA0FD</color>
+    <color name="colorGrassHeader">#86C480</color>
+    <color name="colorNormalHeader">#DCD8D7</color>
+    <color name="colorPoisonHeader">#8D6BA0</color>
     <color name="colorPrimaryHeader">#FF5C35</color>
     <color name="colorAccent">#FFAA00</color>
 </resources>

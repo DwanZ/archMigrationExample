@@ -19,6 +19,7 @@
         app:layout_constraintVertical_bias="0.5" />
 
     <ScrollView
+        android:id="@+id/scrollContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
