@@ -1,0 +1,3 @@
+for_lane 'runUnitTest' do
+	package_name("com.example.archmigrationexample")
+end

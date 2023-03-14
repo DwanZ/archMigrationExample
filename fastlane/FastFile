@@ -1,0 +1,27 @@
+default_platform(:android)
+
+platform :android do
+		lane :runUnitTest do
+		  gradle(task: "test")
+		end
+
+		lane :build do
+			clean
+			build_apk
+		end
+		 
+		# private_lanes
+		private_lane :build_apk do
+		 	gradle(
+			      task: "assemble",
+			      build_type: "debug",
+			      print_command: false,
+		    )
+		end
+
+		private_lane :clean do
+		 	gradle(
+			      task: "clean"
+		    )
+		end
+end
