@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.archmigrationexample">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -15,12 +14,15 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".view.detail.ui.DetailActivity"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.home.ui.HomeActivity"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.splash.SplashActivity"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>

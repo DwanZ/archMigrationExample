@@ -6,14 +6,16 @@ import android.view.Window
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.archmigrationexample.R
+import com.example.archmigrationexample.databinding.ActivitySplashBinding
 import com.example.archmigrationexample.view.home.ui.HomeActivity
-import kotlinx.android.synthetic.main.activity_splash.*
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivitySplashBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,21 +24,17 @@ class SplashActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-        setContentView(R.layout.activity_splash)
-        pokedexImg.animation = AnimationUtils.loadAnimation(this, R.anim.splash_animation)
-        nameImg.animation = AnimationUtils.loadAnimation(this, R.anim.logo_animation)
+        binding = ActivitySplashBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.pokedexImg.animation = AnimationUtils.loadAnimation(this, R.anim.splash_animation)
+        binding.nameImg.animation = AnimationUtils.loadAnimation(this, R.anim.logo_animation)
         openDashboard()
     }
 
     private fun openDashboard() {
-        GlobalScope.launch {
+        lifecycleScope.launch {
             delay(3000L)
-            val intent =
-                Intent(
-                    this@SplashActivity,
-                    HomeActivity::class.java
-                )
-            startActivity(intent)
+            startActivity(Intent(this@SplashActivity, HomeActivity::class.java))
             finish()
         }
     }

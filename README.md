@@ -25,27 +25,22 @@ Interview angle: *when* to migrate, *what* to keep, and how to ship incrementall
 
 ---
 
-## Current baseline (`mvi`)
+## Current baseline (`main` / post-toolchain upgrade)
 
-- Kotlin, Coroutines, `StateFlow`
+- Kotlin 1.9, Coroutines, `StateFlow`
 - Clean architecture (repository, use cases, presentation)
-- Koin DI
+- Koin 3 DI
 - Retrofit + OkHttp + Gson
-- XML Views (ViewBinding / DataBinding)
+- XML Views with **ViewBinding**
 - Picasso
+- AGP **8.7.3** / Gradle **8.9** / compileSdk **35**
 
-Known legacy (being upgraded on `feature/compose-modernization`):
-
-- AGP 4.1 / Gradle 6.5 / Kotlin 1.4 / compileSdk 30
-- `kotlin-android-extensions`, jcenter
-- Placeholder unit/UI tests
-- No CI
-
----
+> **Android Studio tip:** set **Gradle JDK to 17** (embedded JBR), not JDK 25. AGP 8.x requires JDK 17.
 
 ## Modernization goals (senior bar)
 
-- [ ] Gradle Version Catalog + current AGP / Kotlin / compileSdk 35
+- [x] Gradle + current AGP / Kotlin / compileSdk 35
+- [x] Remove synthetics / `kotlin-android-extensions`
 - [ ] Jetpack Compose UI (list + detail) replacing XML screens
 - [ ] Hilt (or keep Koin with clear rationale documented)
 - [ ] Navigation Compose
