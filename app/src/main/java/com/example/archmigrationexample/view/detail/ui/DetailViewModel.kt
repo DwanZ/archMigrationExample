@@ -11,18 +11,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 
-@ExperimentalCoroutinesApi
-class DetailViewModel(private val getPokemonByNameUseCase: GetPokemonByNameUseCase) :
-    BaseViewModel<PokemonEntity>() {
+@OptIn(ExperimentalCoroutinesApi::class)
+class DetailViewModel(
+    private val getPokemonByNameUseCase: GetPokemonByNameUseCase
+) : BaseViewModel<PokemonEntity>() {
 
-    private val _viewState = MutableStateFlow<DetailViewState>(DetailViewState())
-    val viewState: StateFlow<DetailViewState>
-        get() = _viewState
+    private val _viewState = MutableStateFlow(DetailViewState())
+    val viewState: StateFlow<DetailViewState> = _viewState
 
     override val receiveChannel: Flow<ApiResponse<PokemonEntity>>
         get() = getPokemonByNameUseCase.receiveChannel.consumeAsFlow()
 
     fun getPokemonByName(name: String) {
+        _viewState.value = DetailViewState(loading = true)
         getPokemonByNameUseCase.invoke(Params(name))
     }
 

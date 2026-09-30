@@ -2,7 +2,7 @@
 
 Android sample that documents a real architecture evolution:
 
-**MVP → MVVM → MVI → (in progress) Jetpack Compose + modern stack**
+**MVP → MVVM → MVI → Jetpack Compose + modern stack**
 
 Built as a Pokédex (list + detail) against the public [PokéAPI](https://pokeapi.co/), with clean layering across **data → domain → presentation**.
 
@@ -19,35 +19,39 @@ Most portfolio apps only show the final architecture. This one keeps the journey
 | [`mvp`](https://github.com/DwanZ/archMigrationExample/tree/mvp) | MVP + Clean | Contracts, presenters, explicit view callbacks |
 | [`mvvm`](https://github.com/DwanZ/archMigrationExample/tree/mvvm) | MVVM + Clean | ViewModels replace presenters; LiveData/state ownership moves to VM |
 | [`mvi`](https://github.com/DwanZ/archMigrationExample/tree/mvi) | MVI-style | Unidirectional flow: UI events → reducer-like VM → `StateFlow` |
-| `feature/compose-modernization` | Compose + modern toolchain | Same product intent, updated platform stack (active work) |
+| [`feature/compose-mvi`](https://github.com/DwanZ/archMigrationExample/tree/feature/compose-mvi) | Compose + MVI | Material3 UI, Navigation Compose, Coil, UiEffects |
 
 Interview angle: *when* to migrate, *what* to keep, and how to ship incrementally without a big-bang rewrite.
 
 ---
 
-## Current baseline (`main` / post-toolchain upgrade)
+## Current baseline (`feature/compose-mvi`)
 
 - Kotlin 1.9, Coroutines, `StateFlow`
 - Clean architecture (repository, use cases, presentation)
-- Koin 3 DI
+- Koin 3 DI (+ Compose integration)
 - Retrofit + OkHttp + Gson
-- XML Views with **ViewBinding**
-- Picasso
+- **Jetpack Compose (Material3)** list + detail
+- Navigation Compose + one-shot **UiEffects** for navigation
+- Coil for images
 - AGP **8.7.3** / Gradle **8.9** / compileSdk **35**
+- Unit tests (MockK + Turbine) + GitHub Actions CI
 
-> **Android Studio tip:** set **Gradle JDK to 17** (embedded JBR), not JDK 25. AGP 8.x requires JDK 17.
+> **Android Studio tip:** set **Gradle JDK to 17** (`jbr-17`), not JDK 25. AGP 8.x requires JDK 17.
+
+Legacy XML Activities remain in the repo for side-by-side comparison; the launcher is `MainActivity` (Compose).
 
 ## Modernization goals (senior bar)
 
 - [x] Gradle + current AGP / Kotlin / compileSdk 35
 - [x] Remove synthetics / `kotlin-android-extensions`
-- [ ] Jetpack Compose UI (list + detail) replacing XML screens
-- [ ] Hilt (or keep Koin with clear rationale documented)
-- [ ] Navigation Compose
-- [ ] Coil for images
-- [ ] Proper MVI: immutable state, sealed events/effects, tested reducers/VMs
-- [ ] Unit tests for ViewModels / use cases (MockK or Turbine)
-- [ ] GitHub Actions: assemble + unit tests
+- [x] Jetpack Compose UI (list + detail)
+- [x] Navigation Compose
+- [x] Coil for images
+- [x] MVI events + state + effects (navigation)
+- [x] Unit tests for ViewModel (MockK + Turbine)
+- [x] GitHub Actions: assemble + unit tests
+- [ ] Hilt migration (optional; Koin kept with intentional Compose wiring)
 - [ ] Screenshots / short GIF in this README
 
 ---

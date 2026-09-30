@@ -18,11 +18,16 @@ import com.example.archmigrationexample.databinding.ActivityHomeBinding
 import com.example.archmigrationexample.util.Constants
 import com.example.archmigrationexample.util.Constants.Companion.limit
 import com.example.archmigrationexample.view.detail.ui.DetailActivity
+import com.example.archmigrationexample.view.home.HomeEffect
 import com.example.archmigrationexample.view.home.HomeEvent
 import com.example.archmigrationexample.view.home.HomeState
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+/**
+ * Legacy XML screen kept for comparison with Compose ([com.example.archmigrationexample.ui.home.HomeRoute]).
+ * Launcher entry is now [com.example.archmigrationexample.MainActivity].
+ */
 class HomeActivity : AppCompatActivity(), PokemonAdapter.Interaction {
 
     private lateinit var binding: ActivityHomeBinding
@@ -54,24 +59,25 @@ class HomeActivity : AppCompatActivity(), PokemonAdapter.Interaction {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.viewState.collect(::processState)
+                launch { viewModel.viewState.collect(::processState) }
+                launch {
+                    viewModel.effects.collect { effect ->
+                        if (effect is HomeEffect.NavigateToDetail) {
+                            startActivity(
+                                Intent(this@HomeActivity, DetailActivity::class.java)
+                                    .putExtra(Constants.NAME, effect.name)
+                            )
+                        }
+                    }
+                }
             }
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.processUIEvent(HomeEvent.OnViewHidden)
     }
 
     private fun processState(state: HomeState) {
         when (state) {
             is HomeState.Success -> showPokemonList(state.value)
-            is HomeState.OpenDetail -> {
-                val intent = Intent(this, DetailActivity::class.java)
-                intent.putExtra(Constants.NAME, state.name)
-                startActivity(intent)
-            }
+            is HomeState.OpenDetail -> Unit
             is HomeState.Error -> showErrorView(state.error)
             is HomeState.EmptyList -> showEmptyView()
             is HomeState.Loading -> showLoading()
@@ -95,7 +101,7 @@ class HomeActivity : AppCompatActivity(), PokemonAdapter.Interaction {
         binding.errorText.visibility = View.GONE
         binding.swipeRefresh.isRefreshing = false
         binding.recyclerContainer.visibility = View.VISIBLE
-        binding.pagCounter.text = "${(viewModel.offset + limit) / limit} / ${list.count / limit}"
+        binding.pagCounter.text = "${viewModel.pageNumber} / ${(list.count + limit - 1) / limit}"
         paginationVisibility(list.count)
     }
 
@@ -124,7 +130,8 @@ class HomeActivity : AppCompatActivity(), PokemonAdapter.Interaction {
 
     private fun paginationVisibility(count: Int) {
         binding.arrowLeft.visibility = if (viewModel.offset > 0) View.VISIBLE else View.GONE
-        binding.arrowRight.visibility = if (count >= viewModel.offset) View.VISIBLE else View.GONE
+        binding.arrowRight.visibility =
+            if (viewModel.offset + limit < count) View.VISIBLE else View.GONE
     }
 
     override fun onItemSelected(pokemon: PokemonItemListEntity) {
