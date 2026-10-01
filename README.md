@@ -6,8 +6,6 @@ Android sample that documents a real architecture evolution:
 
 Built as a Pokédex (list + detail) against the public [PokéAPI](https://pokeapi.co/), with clean layering across **data → domain → presentation**.
 
-> Target audience: **senior Android interviews** — show migration judgment, not just a greenfield demo.
-
 ---
 
 ## Demo
@@ -22,22 +20,24 @@ Built as a Pokédex (list + detail) against the public [PokéAPI](https://pokeap
 
 ---
 
-## Why this repo exists
+## Architecture branches
 
-Most portfolio apps only show the final architecture. This one keeps the journey:
+These branches are **intentional historical snapshots**. They use an older Android toolchain and are meant for **code reading / comparison**, not for building on modern Android Studio.
 
-| Branch | Pattern | What it demonstrates |
-|--------|---------|----------------------|
-| [`mvp`](https://github.com/DwanZ/archMigrationExample/tree/mvp) | MVP + Clean | Contracts, presenters, explicit view callbacks |
-| [`mvvm`](https://github.com/DwanZ/archMigrationExample/tree/mvvm) | MVVM + Clean | ViewModels replace presenters; LiveData/state ownership moves to VM |
-| [`mvi`](https://github.com/DwanZ/archMigrationExample/tree/mvi) | MVI-style | Unidirectional flow: UI events → reducer-like VM → `StateFlow` |
-| [`main`](https://github.com/DwanZ/archMigrationExample/tree/main) / [`feature/compose-ui-polish`](https://github.com/DwanZ/archMigrationExample/tree/feature/compose-ui-polish) | Compose + MVI | Material3 UI, Navigation Compose, Coil, UiEffects, type-colored detail |
+| Branch | Pattern | Look at these files first |
+|--------|---------|---------------------------|
+| [`mvp`](https://github.com/DwanZ/archMigrationExample/tree/mvp) | MVP + Clean | `HomeContract`, `HomePresenter`, `DetailPresenter` |
+| [`mvvm`](https://github.com/DwanZ/archMigrationExample/tree/mvvm) | MVVM + Clean | `HomeViewModel` + `MutableLiveData`, `BaseViewModel` |
+| [`mvi`](https://github.com/DwanZ/archMigrationExample/tree/mvi) | MVI-style | `HomeState`, `HomeEvent`, `HomeViewModel` (`StateFlow`) |
+| [`main`](https://github.com/DwanZ/archMigrationExample/tree/main) | Compose + MVI | `MainActivity`, `ui/home`, `ui/detail`, `HomeEffect` |
 
-Interview angle: *when* to migrate, *what* to keep, and how to ship incrementally without a big-bang rewrite.
+What stays stable across migrations: **data / domain (use cases + repository)**. What changes: **presentation**.
+
+Suggested walkthrough order: `mvp` → `mvvm` → `mvi` → `main`.
 
 ---
 
-## Current baseline
+## Current baseline (`main`)
 
 - Kotlin 1.9, Coroutines, `StateFlow`
 - Clean architecture (repository, use cases, presentation)
@@ -64,6 +64,7 @@ Legacy XML Activities remain in the repo for side-by-side comparison; the launch
 - [x] Unit tests for ViewModel (MockK + Turbine)
 - [x] GitHub Actions: assemble + unit tests
 - [x] Screenshots in this README
+- [x] Document historical `mvp` / `mvvm` / `mvi` branches
 - [ ] Hilt migration (optional; Koin kept with intentional Compose wiring)
 
 ---
@@ -101,28 +102,32 @@ Domain stays independent of UI framework so MVP → MVVM → MVI → Compose can
 ```bash
 git clone https://github.com/DwanZ/archMigrationExample.git
 cd archMigrationExample
-git checkout main   # or feature/compose-ui-polish for latest UI polish
+git checkout main
 ```
 
 Open in Android Studio, set Gradle JDK to **17**, sync Gradle, run the **`app`** configuration.
 
-> Tip: compare the same screen across `mvp` / `mvvm` / `mvi` / Compose branches in an interview to walk through tradeoffs in 5–10 minutes.
+To inspect historical architectures:
+
+```bash
+git checkout mvp   # or mvvm / mvi
+```
 
 ---
 
-## Tech decisions worth discussing
+## Design notes
 
-1. **Why MVI after MVVM?** Clearer event modeling, fewer ad-hoc LiveData channels, easier UI-state reasoning under concurrency.
-2. **Why keep use cases?** Small app, but they document intent and stay testable when UI frameworks change.
-3. **Why UiEffects for navigation?** Keeps UI state render-only; one-shot navigation does not pollute the state machine.
-4. **Type colors on detail:** Port of the original XML `setHeaderColor` rule (last mapped type wins), extended to more types for contrast.
-5. **Migration strategy:** branch-per-architecture instead of deleting history — useful for teams mid-migration (Compose adoption).
+1. **MVI after MVVM:** clearer event modeling and a single UI state stream (`StateFlow`).
+2. **Use cases kept small:** document intent and remain testable when the UI framework changes.
+3. **UiEffects for navigation:** keep render state separate from one-shot side effects.
+4. **Type colors on detail:** port of the original XML `setHeaderColor` rule (last mapped type wins), extended for contrast.
+5. **Branch-per-architecture:** preserve migration history instead of deleting intermediate designs.
 
 ---
 
-## Portfolio checklist
+## Profile README
 
-See [`docs/github-profile-readme.md`](docs/github-profile-readme.md) to publish your GitHub profile README and pin this repo.
+Ready-to-publish content: [`docs/github-profile-readme.md`](docs/github-profile-readme.md).
 
 ---
 
