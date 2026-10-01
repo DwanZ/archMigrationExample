@@ -25,11 +25,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -37,12 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.archmigrationexample.data.entity.PokemonEntity
-import com.example.archmigrationexample.ui.theme.FireHeader
-import com.example.archmigrationexample.ui.theme.GrassHeader
-import com.example.archmigrationexample.ui.theme.NormalHeader
-import com.example.archmigrationexample.ui.theme.PokeOrange
-import com.example.archmigrationexample.ui.theme.PoisonHeader
-import com.example.archmigrationexample.ui.theme.WaterHeader
+import com.example.archmigrationexample.ui.theme.BrandRed
+import com.example.archmigrationexample.ui.theme.contrastingContentColor
+import com.example.archmigrationexample.ui.theme.headerColorForTypes
+import com.example.archmigrationexample.ui.theme.softSurfaceTint
 import com.example.archmigrationexample.util.Constants.Companion.PNG
 import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_DETAIL_URL
 import com.example.archmigrationexample.view.detail.ui.DetailViewModel
@@ -75,6 +75,17 @@ fun DetailScreen(
     state: DetailViewState,
     onBack: () -> Unit
 ) {
+    val headerColor = state.value?.types
+        ?.takeIf { it.isNotEmpty() }
+        ?.let { headerColorForTypes(it) }
+        ?: BrandRed
+    val onHeader = contrastingContentColor(headerColor)
+    val pageBackground = if (state.value != null) {
+        softSurfaceTint(headerColor)
+    } else {
+        MaterialTheme.colorScheme.background
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -86,11 +97,21 @@ fun DetailScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = onHeader
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = headerColor,
+                    titleContentColor = onHeader,
+                    navigationIconContentColor = onHeader
+                )
             )
-        }
+        },
+        containerColor = pageBackground
     ) { padding ->
         Box(
             modifier = Modifier
@@ -101,7 +122,7 @@ fun DetailScreen(
                 state.loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = PokeOrange
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
                 state.error != null -> {
@@ -114,7 +135,10 @@ fun DetailScreen(
                     )
                 }
                 state.value != null -> {
-                    PokemonDetailContent(pokemon = state.value)
+                    PokemonDetailContent(
+                        pokemon = state.value,
+                        headerColor = headerColor
+                    )
                 }
             }
         }
@@ -122,8 +146,10 @@ fun DetailScreen(
 }
 
 @Composable
-private fun PokemonDetailContent(pokemon: PokemonEntity) {
-    val headerColor = headerColorFor(pokemon.types.firstOrNull()?.type?.name)
+private fun PokemonDetailContent(
+    pokemon: PokemonEntity,
+    headerColor: Color
+) {
     val abilities = pokemon.abilities.joinToString(" • ") { it.ability.name }
     val moves = pokemon.moves.take(12).joinToString(" • ") { it.move.name }
     val types = pokemon.types.joinToString(" • ") { it.type.name }
@@ -137,8 +163,16 @@ private fun PokemonDetailContent(pokemon: PokemonEntity) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(headerColor)
-                .padding(24.dp),
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            headerColor,
+                            headerColor.copy(alpha = 0.85f),
+                            softSurfaceTint(headerColor)
+                        )
+                    )
+                )
+                .padding(vertical = 28.dp, horizontal = 24.dp),
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
@@ -175,6 +209,9 @@ private fun InfoCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -182,17 +219,5 @@ private fun InfoCard(
             Spacer(Modifier.height(8.dp))
             content()
         }
-    }
-}
-
-private fun headerColorFor(type: String?): Color {
-    val value = type.orEmpty()
-    return when {
-        value.contains("water") -> WaterHeader
-        value.contains("grass") || value.contains("bug") -> GrassHeader
-        value.contains("poison") -> PoisonHeader
-        value.contains("fire") -> FireHeader
-        value.contains("normal") -> NormalHeader
-        else -> FireHeader
     }
 }

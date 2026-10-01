@@ -33,6 +33,9 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -43,7 +46,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.archmigrationexample.data.entity.PokemonItemListEntity
 import com.example.archmigrationexample.data.entity.PokemonListEntity
-import com.example.archmigrationexample.ui.theme.PokeOrange
 import com.example.archmigrationexample.util.Constants.Companion.PNG
 import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_URL
 import com.example.archmigrationexample.util.Constants.Companion.limit
@@ -84,30 +86,46 @@ fun HomeScreen(
     pageNumber: Int,
     onEvent: (HomeEvent) -> Unit
 ) {
-    val isRefreshing = state is HomeState.Loading
+    // Only show the pull indicator for user-driven refresh, never together with the center spinner.
+    var isPullRefreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(state) {
+        if (state !is HomeState.Loading) {
+            isPullRefreshing = false
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Pokédex Migration") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = PokeOrange,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            onRefresh = { onEvent(HomeEvent.RefreshPage) },
+            isRefreshing = isPullRefreshing && state is HomeState.Loading,
+            onRefresh = {
+                isPullRefreshing = true
+                onEvent(HomeEvent.RefreshPage)
+            },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
             when (state) {
                 is HomeState.Loading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = PokeOrange)
+                    if (!isPullRefreshing) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
                 is HomeState.Success -> {
@@ -126,9 +144,7 @@ fun HomeScreen(
                         "Error al cargar datos:\n${state.error.javaClass.simpleName}"
                     )
                 }
-                is HomeState.OpenDetail, is HomeState.OnViewHidden -> {
-                    MessageCenter("Preparando…")
-                }
+                is HomeState.OpenDetail, is HomeState.OnViewHidden -> Unit
             }
         }
     }
@@ -197,7 +213,10 @@ private fun PokemonCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
