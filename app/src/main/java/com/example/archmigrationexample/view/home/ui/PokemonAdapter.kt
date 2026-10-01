@@ -1,25 +1,19 @@
 package com.example.archmigrationexample.view.home.ui
 
-import android.content.Intent
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.example.archmigrationexample.R
 import com.example.archmigrationexample.data.entity.PokemonItemListEntity
-import com.example.archmigrationexample.util.Constants
-import com.example.archmigrationexample.util.Constants.Companion.NAME
 import com.example.archmigrationexample.util.Constants.Companion.PNG
 import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_BACK_SHINY_URL
 import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_BACK_URL
 import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_SHINY_URL
 import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_URL
-import com.example.archmigrationexample.view.detail.ui.DetailActivity
 import com.squareup.picasso.Picasso
 
 class PokemonAdapter(var pokemonList: List<PokemonItemListEntity>, val interaction: Interaction? = null) :
@@ -48,7 +42,7 @@ class PokemonViewHolder(inflater: LayoutInflater, parent: ViewGroup, val interac
     )
 ) {
 
-    private val card: CardView =  itemView.findViewById(R.id.pokemonCard)
+    private val card: CardView = itemView.findViewById(R.id.pokemonCard)
     private val mName: TextView = itemView.findViewById(R.id.pokemonMainName)
     private val pImg: ImageView = itemView.findViewById(R.id.pokemonMainImg)
     private val shinyIcon: ImageView = itemView.findViewById(R.id.pokemonShinyIcon)
@@ -57,18 +51,18 @@ class PokemonViewHolder(inflater: LayoutInflater, parent: ViewGroup, val interac
     private var shinyFlag = false
 
     fun bind(pokemon: PokemonItemListEntity, position: Int, offset: Int) {
-        mName.text = pokemon.name.capitalize()
+        mName.text = pokemon.name.replaceFirstChar { it.uppercase() }
         val url = "${POKEMON_IMG_URL}${position + 1 + offset}${PNG}"
         Picasso.get().load(url).into(pImg)
         shinyIcon.setOnClickListener {
             shinyFlag = !shinyFlag
-            val url =  "${handleImgState()}${position + 1 + offset}${PNG}"
-            Picasso.get().load(url).into(pImg)
+            val imgUrl = "${handleImgState()}${position + 1 + offset}${PNG}"
+            Picasso.get().load(imgUrl).into(pImg)
         }
         flipIcon.setOnClickListener {
             flipFlag = !flipFlag
-            val url = "${handleImgState()}${position + 1 + offset}${PNG}"
-            Picasso.get().load(url).into(pImg)
+            val imgUrl = "${handleImgState()}${position + 1 + offset}${PNG}"
+            Picasso.get().load(imgUrl).into(pImg)
         }
         card.setOnClickListener {
             interaction?.onItemSelected(pokemon)
@@ -86,5 +80,4 @@ class PokemonViewHolder(inflater: LayoutInflater, parent: ViewGroup, val interac
             POKEMON_IMG_URL
         }
     }
-
 }

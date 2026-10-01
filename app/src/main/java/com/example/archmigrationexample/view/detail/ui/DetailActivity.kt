@@ -5,57 +5,57 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.addRepeatingJob
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.archmigrationexample.R
 import com.example.archmigrationexample.data.entity.PokemonEntity
+import com.example.archmigrationexample.databinding.ActivityDetailBinding
 import com.example.archmigrationexample.util.Constants.Companion.NAME
 import com.example.archmigrationexample.util.Constants.Companion.PNG
 import com.example.archmigrationexample.util.Constants.Companion.POKEMON_IMG_DETAIL_URL
 import com.example.archmigrationexample.util.exceptions.EmptyResponseException
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_detail.*
-import kotlinx.coroutines.flow.collect
-import org.koin.java.KoinJavaComponent.inject
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DetailActivity : AppCompatActivity() {
 
-    private val viewModel by inject(DetailViewModel::class.java)
+    private lateinit var binding: ActivityDetailBinding
+    private val viewModel: DetailViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.activity_detail)
-        addRepeatingJob(Lifecycle.State.STARTED) {
-            viewModel.viewState.collect {
-                render(it)
+        binding = ActivityDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.viewState.collect { render(it) }
             }
         }
+
         intent?.extras?.getString(NAME)?.let {
             viewModel.getPokemonByName(it)
-        } ?: run {
-            showEmptyView(EmptyResponseException())
-        }
+        } ?: showEmptyView(EmptyResponseException())
     }
 
     private fun render(state: DetailViewState) {
-       if (state.loading) showLoading() else hideLoading()
-        state.error?.let {
-            showEmptyView(it)
-        }
-        state.value?.let {
-            showPokemon(it)
-        }
+        if (state.loading) showLoading() else hideLoading()
+        state.error?.let { showEmptyView(it) }
+        state.value?.let { showPokemon(it) }
     }
 
     private fun showLoading() {
-        pokemonProgress.visibility = View.VISIBLE
-        pokemonDetailIContainer.visibility = View.GONE
-        errorDetailText.visibility = View.GONE
+        binding.pokemonProgress.visibility = View.VISIBLE
+        binding.pokemonDetailIContainer.visibility = View.GONE
+        binding.errorDetailText.visibility = View.GONE
     }
 
     private fun hideLoading() {
-        pokemonProgress.visibility = View.GONE
+        binding.pokemonProgress.visibility = View.GONE
     }
 
     @SuppressLint("SetTextI18n")
@@ -71,45 +71,40 @@ class DetailActivity : AppCompatActivity() {
         }
         var stats = ""
         pokemon.stats.forEach { stat -> stats += stat.stat.name.plus(": ${stat.base_stat} \r\n") }
-        pokemonName.text = pokemon.name.capitalize()
-        pokemonHeight.text = "${pokemon.height}"
-        pokemonWeight.text = "${pokemon.weight}"
-        pokemonPower.text = "[ ${ability.dropLast(3)}]"
-        pokemonMove.text = "[ ${moves.dropLast(3)}]"
-        pokemonExp.text = "${pokemon.baseExperience}"
-        pokemonType.text = "[ ${types.dropLast(3)}]"
-        pokemonItems.text = "${stats.dropLast(3)}"
-        Picasso.get().load("$POKEMON_IMG_DETAIL_URL${pokemon.id}$PNG").into(pokemonDetailImg)
-        pokemonDetailIContainer.visibility = View.VISIBLE
-        scrollContainer.visibility = View.VISIBLE
-        errorDetailText.visibility = View.GONE
+
+        binding.pokemonName.text = pokemon.name.replaceFirstChar { it.uppercase() }
+        binding.pokemonHeight.text = "${pokemon.height}"
+        binding.pokemonWeight.text = "${pokemon.weight}"
+        binding.pokemonPower.text = "[ ${ability.dropLast(3)}]"
+        binding.pokemonMove.text = "[ ${moves.dropLast(3)}]"
+        binding.pokemonExp.text = "${pokemon.baseExperience}"
+        binding.pokemonType.text = "[ ${types.dropLast(3)}]"
+        binding.pokemonItems.text = "${stats.dropLast(3)}"
+        Picasso.get().load("$POKEMON_IMG_DETAIL_URL${pokemon.id}$PNG").into(binding.pokemonDetailImg)
+        binding.pokemonDetailIContainer.visibility = View.VISIBLE
+        binding.scrollContainer.visibility = View.VISIBLE
+        binding.errorDetailText.visibility = View.GONE
     }
 
     private fun showEmptyView(error: Throwable) {
-        scrollContainer.visibility = View.GONE
-        errorDetailText.apply {
+        binding.scrollContainer.visibility = View.GONE
+        binding.errorDetailText.apply {
             text = "Error al recuperar los datos causado por ${error.javaClass.canonicalName}"
             visibility = View.VISIBLE
         }
     }
 
     private fun setHeaderColor(type: String) {
-        when {
-            type.contains("normal") -> {
-                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorNormalHeader))
-            }
-            type.contains("water") -> {
-                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorWaterHeader))
-            }
-            type.contains("grass") || type.contains("bug") -> {
-                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorGrassHeader))
-            }
-            type.contains("poison") -> {
-                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorPoisonHeader))
-            }
-            type.contains("fire") -> {
-                pokemonDetailHeader.setBackgroundColor(resources.getColor(R.color.colorFireHeader))
-            }
+        val colorRes = when {
+            type.contains("normal") -> R.color.colorNormalHeader
+            type.contains("water") -> R.color.colorWaterHeader
+            type.contains("grass") || type.contains("bug") -> R.color.colorGrassHeader
+            type.contains("poison") -> R.color.colorPoisonHeader
+            type.contains("fire") -> R.color.colorFireHeader
+            else -> return
         }
+        binding.pokemonDetailHeader.setBackgroundColor(
+            ContextCompat.getColor(this, colorRes)
+        )
     }
 }

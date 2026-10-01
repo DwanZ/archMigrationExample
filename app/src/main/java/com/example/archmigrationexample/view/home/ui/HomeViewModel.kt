@@ -2,78 +2,89 @@ package com.example.archmigrationexample.view.home.ui
 
 import androidx.lifecycle.viewModelScope
 import com.example.archmigrationexample.data.entity.PokemonListEntity
-import com.example.archmigrationexample.usecase.GetPokemonByNameUseCase
 import com.example.archmigrationexample.usecase.GetPokemonListByPagination
 import com.example.archmigrationexample.usecase.GetPokemonListByPagination.Params
 import com.example.archmigrationexample.util.ApiResponse
+import com.example.archmigrationexample.util.Constants.Companion.limit
 import com.example.archmigrationexample.view.BaseViewModel
+import com.example.archmigrationexample.view.home.HomeEffect
 import com.example.archmigrationexample.view.home.HomeEvent
 import com.example.archmigrationexample.view.home.HomeState
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModel(
-    private val getPokemonByNameUseCase: GetPokemonByNameUseCase,
     private val getPokemonListByPagination: GetPokemonListByPagination
 ) : BaseViewModel<PokemonListEntity>() {
 
     private val _viewState = MutableStateFlow<HomeState>(HomeState.Loading)
-    val viewState: StateFlow<HomeState>
-        get() = _viewState
+    val viewState: StateFlow<HomeState> = _viewState
+
+    private val _effects = Channel<HomeEffect>(Channel.BUFFERED)
+    val effects: Flow<HomeEffect> = _effects.receiveAsFlow()
+
     override val receiveChannel: Flow<ApiResponse<PokemonListEntity>>
         get() = getPokemonListByPagination.receiveChannel.consumeAsFlow()
+
     var offset: Int = 0
+        private set
+
+    val pageNumber: Int
+        get() = (offset / limit) + 1
 
     init {
-        getPokemonList()
-    }
-
-    private fun getPokemonList() {
-        viewModelScope.launch {
-            getPokemonListByPagination.invoke(Params("$offset"))
-        }
-    }
-
-    fun getPokemonList(increase: Int) {
-        offset += increase
-        getPokemonListByPagination.invoke(Params("$offset"))
+        loadCurrentPage()
     }
 
     override fun resolve(apiResponse: ApiResponse<PokemonListEntity>) {
         apiResponse.handleResult(::handleListSuccess, ::handleListError)
     }
 
+    fun processUIEvent(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.RefreshPage -> {
+                _viewState.value = HomeState.Loading
+                loadCurrentPage()
+            }
+            is HomeEvent.NextPage -> {
+                offset = (offset + event.index).coerceAtLeast(0)
+                _viewState.value = HomeState.Loading
+                loadCurrentPage()
+            }
+            is HomeEvent.PreviousPage -> {
+                offset = (offset + event.index).coerceAtLeast(0)
+                _viewState.value = HomeState.Loading
+                loadCurrentPage()
+            }
+            is HomeEvent.OpenDetail -> {
+                viewModelScope.launch {
+                    _effects.send(HomeEffect.NavigateToDetail(event.name))
+                }
+            }
+            is HomeEvent.OnViewHidden -> Unit
+        }
+    }
+
+    private fun loadCurrentPage() {
+        getPokemonListByPagination.invoke(Params("$offset"))
+    }
+
     private fun handleListSuccess(data: PokemonListEntity) {
-        if (data.results.isEmpty()) {
-            _viewState.value = HomeState.EmptyList
+        _viewState.value = if (data.results.isEmpty()) {
+            HomeState.EmptyList
         } else {
-            _viewState.value = HomeState.Success(data)
+            HomeState.Success(data)
         }
     }
 
     private fun handleListError(error: Throwable) {
         _viewState.value = HomeState.Error(error)
     }
-
-    fun processUIEvent(event: HomeEvent) {
-        when (event) {
-            is HomeEvent.RefreshPage -> {
-                getPokemonList(offset)
-            }
-            is HomeEvent.NextPage -> {
-                getPokemonList(event.index)
-            }
-            is HomeEvent.PreviousPage -> {
-                getPokemonList(event.index)
-            }
-            is HomeEvent.OpenDetail -> {
-                _viewState.value = HomeState.OpenDetail(event.name)
-            }
-            is HomeEvent.OnViewHidden -> {
-                _viewState.value = HomeState.OnViewHidden
-            }
-        }
-    }
-
 }
