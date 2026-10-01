@@ -93,7 +93,7 @@ cd archMigrationExample
 git checkout mvp   # or mvvm / mvi
 
 # active modernization
-git checkout feature/compose-modernization
+git checkout feature/compose-mvi
 ```
 
 Open in Android Studio, sync Gradle, run the `app` configuration.
@@ -106,7 +106,8 @@ Open in Android Studio, sync Gradle, run the `app` configuration.
 
 1. **Why MVI after MVVM?** Clearer event modeling, fewer ad-hoc LiveData channels, easier UI-state reasoning under concurrency.
 2. **Why keep use cases?** Small app, but they document intent and stay testable when UI frameworks change.
-3. **Migration strategy:** branch-per-architecture instead of deleting history — useful for teams mid-migration (Compose adoption, modularization).
+3. **Why UiEffects for navigation?** Keeps `HomeState` render-only; one-shot navigation does not pollute the UI state machine.
+4. **Migration strategy:** branch-per-architecture instead of deleting history — useful for teams mid-migration (Compose adoption, modularization).
 
 ---
 

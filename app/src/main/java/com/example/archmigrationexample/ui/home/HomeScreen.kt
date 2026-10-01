@@ -126,9 +126,6 @@ fun HomeScreen(
                         "Error al cargar datos:\n${state.error.javaClass.simpleName}"
                     )
                 }
-                is HomeState.OpenDetail, is HomeState.OnViewHidden -> {
-                    MessageCenter("Preparando…")
-                }
             }
         }
     }

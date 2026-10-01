@@ -77,11 +77,9 @@ class HomeActivity : AppCompatActivity(), PokemonAdapter.Interaction {
     private fun processState(state: HomeState) {
         when (state) {
             is HomeState.Success -> showPokemonList(state.value)
-            is HomeState.OpenDetail -> Unit
             is HomeState.Error -> showErrorView(state.error)
             is HomeState.EmptyList -> showEmptyView()
             is HomeState.Loading -> showLoading()
-            is HomeState.OnViewHidden -> Unit
         }
     }
 

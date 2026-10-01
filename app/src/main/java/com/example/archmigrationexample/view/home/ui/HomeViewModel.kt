@@ -68,7 +68,6 @@ class HomeViewModel(
                     _effects.send(HomeEffect.NavigateToDetail(event.name))
                 }
             }
-            is HomeEvent.OnViewHidden -> Unit
         }
     }
 
