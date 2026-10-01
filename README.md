@@ -6,8 +6,6 @@ Android sample that documents a real architecture evolution:
 
 Built as a Pokédex (list + detail) against the public [PokéAPI](https://pokeapi.co/), with clean layering across **data → domain → presentation**.
 
-> Target audience: **senior Android interviews** — show migration judgment, not just a greenfield demo.
-
 ---
 
 ## Why this repo exists
@@ -41,7 +39,7 @@ Interview angle: *when* to migrate, *what* to keep, and how to ship incrementall
 
 Legacy XML Activities remain in the repo for side-by-side comparison; the launcher is `MainActivity` (Compose).
 
-## Modernization goals (senior bar)
+## Modernization goals
 
 - [x] Gradle + current AGP / Kotlin / compileSdk 35
 - [x] Remove synthetics / `kotlin-android-extensions`
