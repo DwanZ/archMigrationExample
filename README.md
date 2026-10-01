@@ -96,8 +96,6 @@ git checkout feature/compose-modernization
 
 Open in Android Studio, sync Gradle, run the `app` configuration.
 
-> Tip: compare the same screen across branches in an interview to walk through tradeoffs in 5–10 minutes.
-
 ---
 
 ## Tech decisions worth discussing
